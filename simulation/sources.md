@@ -1,0 +1,1 @@
+https://www.google.com/url?sa=i&url=https%3A%2F%2Fanatomytool.org%2Fcontent%2Fservier-drawing-neuron-no-labels&psig=AOvVaw3l21pnKlbtG1iPmj33acET&ust=1682887170311000&source=images&cd=vfe&ved=0CBIQjhxqFwoTCICVj7_5z_4CFQAAAAAdAAAAABAI
