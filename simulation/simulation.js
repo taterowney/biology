@@ -119,7 +119,7 @@ function render() {
             ctx.drawImage(item.asset, item.x, item.y);
         }
         else if (item.type == "text") {
-            ctx.font = "15px Arial";
+            ctx.font = item.style;
             ctx.fillText(item.text, item.x, item.y);
         }
         ctx.resetTransform();
@@ -323,11 +323,13 @@ function update_placing_synapse(x, y) {
             synapse = window.renderStack[i];
             let min_dist = 1000;
             var best_pos = [x, y];
+            var target;
             for (let i = 0; i < window.renderStack.length; i++) {
                 let item = window.renderStack[i];
                 if (item.type == "image" && item.asset == window.assets["neuron"] && distance(item.center, [x, y]) < min_dist && item.uid != synapse.parent.uid) {
                     min_dist = distance(item.center, [x, y]);
                     best_pos = item.center;
+                    target = item;
                 }
             }
             break;
@@ -335,7 +337,8 @@ function update_placing_synapse(x, y) {
     }
     if (synapse) {
         let parent = synapse.parent;
-        synapse.start = vec_add(parent.center, scale_to_magnitude(angle_vec_towards(parent.center, best_pos), 0.5*parent.asset.width));
+        synapse.target = target;
+        synapse.start = vec_add(parent.center, scale_to_magnitude(angle_vec_towards(parent.center, best_pos), 0.25*parent.asset.width));
         synapse.end = vec_add(best_pos, scale_to_magnitude(angle_vec_towards(best_pos, parent.center), 0.5*parent.asset.width));
         synapse.x = synapse.end[0]-0.5*synapse.asset.width;
         synapse.y = synapse.end[1]-0.5*synapse.asset.height;
@@ -465,6 +468,12 @@ function tick_simulation() {
     for (let i=0; i < window.influence_agents.length; i++) {
         let item = window.renderStack[i];
         item.charge = new_charges[i];
+        if (item.target) {
+            console.log(item.target)
+            if (item.charge > 0.05) {
+                item.target.charge = 0.5;
+            }
+        }
     }
     if (window.is_simulating) {
         window.setTimeout(function() {
@@ -487,7 +496,13 @@ function maybe_show_charge_labels() {
         for (let i=0; i < window.influence_agents.length; i++) {
             let item = window.influence_agents[i];
             if (item) {
-                let label = {type:"text", text: Math.round(item.charge*100)/100, x: item.x + 0.5*item.asset.width, y: item.y + 0.5*item.asset.height, uid: generate_uid(), decorative: true};
+                let label;
+                if (item.asset == window.assets["axon"]) {
+                    label = {type:"text", text: Math.round(item.charge*220-55), x: item.x + 0.5*item.asset.width, y: item.y + 0.5*item.asset.height, uid: generate_uid(), decorative: true, style:"8px Arial"};
+                }
+                else {
+                    label = {type:"text", text: Math.round(item.charge*220-55), x: item.x + 0.5*item.asset.width, y: item.y + 0.5*item.asset.height, uid: generate_uid(), decorative: true, style:"15px Arial"};
+                }
                 window.charge_labels.push(label);
                 window.renderStack.push(label);
             }
